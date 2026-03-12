@@ -423,3 +423,171 @@ TEST(ApiUtils, getSDKInstallPath)
 	auto path = apiUtils.getSDKInstallPath();
 	EXPECT_THAT(path.string(), testing::EndsWith("build/linux-x64/opentelemetry-webserver-sdk"));
 }
+
+TEST(ApiUtils, ReadFromPassedSettings_ResourceAttributes_Populated)
+{
+	OTEL_SDK_ENV_RECORD* env_config = new OTEL_SDK_ENV_RECORD[17];
+    int ix = 0;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_EXPORTER_TYPE;
+    env_config[ix].value = "dummy_exporter";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_EXPORTER_ENDPOINT;
+    env_config[ix].value = "dummy_endpoint";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_SSL_ENABLED;
+    env_config[ix].value = "1";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_SSL_CERTIFICATE_PATH;
+    env_config[ix].value = "dummy_path";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_LIBRARY_NAME;
+    env_config[ix].value = "Apache";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_PROCESSOR_TYPE;
+    env_config[ix].value = "dummy_processor";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_SAMPLER_TYPE;
+    env_config[ix].value = "dummy_sampler";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SERVICE_NAMESPACE;
+    env_config[ix].value = "dummy_service_namespace";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SERVICE_NAME;
+    env_config[ix].value = "dummy_service";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SERVICE_INSTANCE_ID;
+    env_config[ix].value = "dummy_instance_id";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_MAX_QUEUE_SIZE;
+    env_config[ix].value = "2048";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SCHEDULED_DELAY;
+    env_config[ix].value = "500";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_EXPORT_BATCH_SIZE;
+    env_config[ix].value = "2048";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_EXPORT_TIMEOUT;
+    env_config[ix].value = "50000";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SEGMENT_TYPE;
+    env_config[ix].value = "first";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SEGMENT_PARAMETER;
+    env_config[ix].value = "2";
+    ++ix;
+
+    // Resource Attributes
+    env_config[ix].name = OTEL_SDK_ENV_RESOURCE_ATTRIBUTES;
+    env_config[ix].value = "deployment.environment=production,k8s.namespace=my-ns";
+    ++ix;
+
+    otel::core::SpanNamer spanNamer;
+	otel::core::TenantConfig tenantConfig;
+	otel::core::ApiUtils apiUtils;
+
+	auto status = apiUtils.ReadFromPassedSettings(env_config, 17, tenantConfig, spanNamer);
+	EXPECT_EQ(status, OTEL_SUCCESS);
+	EXPECT_EQ(tenantConfig.getOtelResourceAttributes(), "deployment.environment=production,k8s.namespace=my-ns");
+	delete[] env_config;
+}
+
+TEST(ApiUtils, ReadFromPassedSettings_ResourceAttributes_Empty)
+{
+	OTEL_SDK_ENV_RECORD* env_config = new OTEL_SDK_ENV_RECORD[17];
+    int ix = 0;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_EXPORTER_TYPE;
+    env_config[ix].value = "dummy_exporter";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_EXPORTER_ENDPOINT;
+    env_config[ix].value = "dummy_endpoint";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_SSL_ENABLED;
+    env_config[ix].value = "1";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_SSL_CERTIFICATE_PATH;
+    env_config[ix].value = "dummy_path";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_LIBRARY_NAME;
+    env_config[ix].value = "Apache";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_PROCESSOR_TYPE;
+    env_config[ix].value = "dummy_processor";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_OTEL_SAMPLER_TYPE;
+    env_config[ix].value = "dummy_sampler";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SERVICE_NAMESPACE;
+    env_config[ix].value = "dummy_service_namespace";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SERVICE_NAME;
+    env_config[ix].value = "dummy_service";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SERVICE_INSTANCE_ID;
+    env_config[ix].value = "dummy_instance_id";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_MAX_QUEUE_SIZE;
+    env_config[ix].value = "2048";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SCHEDULED_DELAY;
+    env_config[ix].value = "500";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_EXPORT_BATCH_SIZE;
+    env_config[ix].value = "2048";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_EXPORT_TIMEOUT;
+    env_config[ix].value = "50000";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SEGMENT_TYPE;
+    env_config[ix].value = "first";
+    ++ix;
+
+    env_config[ix].name = OTEL_SDK_ENV_SEGMENT_PARAMETER;
+    env_config[ix].value = "2";
+    ++ix;
+
+    // Resource Attributes explicitly empty
+    env_config[ix].name = OTEL_SDK_ENV_RESOURCE_ATTRIBUTES;
+    env_config[ix].value = "";
+    ++ix;
+
+    otel::core::SpanNamer spanNamer;
+	otel::core::TenantConfig tenantConfig;
+	otel::core::ApiUtils apiUtils;
+
+	auto status = apiUtils.ReadFromPassedSettings(env_config, 17, tenantConfig, spanNamer);
+	EXPECT_EQ(status, OTEL_SUCCESS);
+	EXPECT_EQ(tenantConfig.getOtelResourceAttributes(), "");
+	delete[] env_config;
+}

@@ -397,6 +397,41 @@ const char* ApacheConfigHandlers::otel_set_segmentParameter(cmd_parms *cmd, void
     return NULL;
 }
 
+// char *otelResourceAttributes (W3C Correlation-Context format: key1=value1,key2=value2)
+// int otelResourceAttributes_initialized
+const char* ApacheConfigHandlers::otel_add_resource_attribute(cmd_parms *cmd, void *conf, const char *key, const char *value)
+{
+    if (!key || strlen(key) == 0)
+    {
+        return "ApacheModuleOtelResourceAttributes: attribute key must not be empty";
+    }
+    if (strchr(key, '=') || strchr(key, ','))
+    {
+        return "ApacheModuleOtelResourceAttributes: attribute key must not contain '=' or ','";
+    }
+    if (!value)
+    {
+        return "ApacheModuleOtelResourceAttributes: attribute value must not be null";
+    }
+    if (strchr(value, '=') || strchr(value, ','))
+    {
+        return "ApacheModuleOtelResourceAttributes: attribute value must not contain '=' or ','";
+    }
+
+    otel_cfg* cfg = (otel_cfg*) conf;
+    if (cfg->otelResourceAttributes_initialized)
+    {
+        cfg->otelResourceAttributes = apr_pstrcat(cmd->pool, cfg->otelResourceAttributes, ",", key, "=", value, NULL);
+    }
+    else
+    {
+        cfg->otelResourceAttributes = apr_pstrcat(cmd->pool, key, "=", value, NULL);
+        cfg->otelResourceAttributes_initialized = 1;
+    }
+    ApacheTracing::writeTrace(cmd->server, "Config", "otel_add_resource_attribute(%s=%s)", key, value);
+    return NULL;
+}
+
 std::string ApacheConfigHandlers::computeContextName(const otel_cfg* cfg)
 {
     if (!cfg->serviceNamespace_initialized || !cfg->serviceName_initialized || !cfg->serviceInstanceId_initialized)
@@ -539,6 +574,10 @@ void otel_cfg::init()
     //segmentParameter             OPTIONAL:
     segmentParameter = "2";
     segmentParameter_initialized = 0;
+
+    //otelResourceAttributes       OPTIONAL: Custom resource attributes in W3C format key1=val1,key2=val2
+    otelResourceAttributes = "";
+    otelResourceAttributes_initialized = 0;
 }
 
 bool otel_cfg::validate(const request_rec *r)
@@ -745,6 +784,17 @@ void* ApacheConfigHandlers::otel_merge_dir_config(apr_pool_t* p, void* parent_co
     merged_config->segmentParameter = nconf->segmentParameter_initialized ? nconf->segmentParameter : pconf->segmentParameter;
     merged_config->segmentParameter_initialized = 1;
 
+    // otelResourceAttributes  OPTIONAL: Custom resource attributes
+    // VirtualHost is independent — no inheritance from parent when not explicitly set.
+    if (nconf->otelResourceAttributes_initialized) {
+        merged_config->otelResourceAttributes =
+                apr_pstrdup(p, nconf->otelResourceAttributes);
+        merged_config->otelResourceAttributes_initialized = 1;
+    } else {
+        merged_config->otelResourceAttributes = apr_pstrdup(p, "");
+        merged_config->otelResourceAttributes_initialized = 0;
+    }
+
 
     ApacheTracing::writeTrace(NULL, __func__,
             "(p == %p, parent_conf == %p, newloc_conf == %p)",
@@ -831,6 +881,9 @@ otel_cfg* ApacheConfigHandlers::getProcessConfig(const request_rec* r)
     process_cfg->reportAllInstrumentedModules = our_config->reportAllInstrumentedModules;
     process_cfg->reportAllInstrumentedModules_initialized = our_config->reportAllInstrumentedModules_initialized;
 
+    process_cfg->otelResourceAttributes = apr_pstrdup(r->server->process->pool, our_config->otelResourceAttributes);
+    process_cfg->otelResourceAttributes_initialized = our_config->otelResourceAttributes_initialized;
+
     return process_cfg;
 }
 
@@ -877,6 +930,7 @@ void ApacheConfigHandlers::traceConfig(const request_rec* r, const otel_cfg* cfg
                 "(MaskSmUser=\"%d\")"
                 "(SegmentType=\"%s\")"
                 "(SegmentParameter=\"%s\")"
+                "(OtelResourceAttributes=\"%s\")"
             "}",
             cfg->otelEnabled,
             cfg->otelExporterEndpoint,
@@ -898,5 +952,6 @@ void ApacheConfigHandlers::traceConfig(const request_rec* r, const otel_cfg* cfg
             cfg->maskCookie,
             cfg->maskSmUser,
             cfg->segmentType,
-            cfg->segmentParameter);
+            cfg->segmentParameter,
+            cfg->otelResourceAttributes);
 }

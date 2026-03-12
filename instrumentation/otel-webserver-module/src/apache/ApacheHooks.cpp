@@ -426,9 +426,17 @@ bool ApacheHooks::initialize_opentelemetry(const request_rec *r)
         env_config[ix].value = our_config->getSegmentParameter();
         ++ix;
 
-        // Segment Parameter
+        // OTLP Headers
         env_config[ix].name = OTEL_SDK_ENV_OTEL_EXPORTER_OTLPHEADERS;
         env_config[ix].value = our_config->getOtelExporterOtlpHeaders();
+        ++ix;
+
+        // Resource Attributes (W3C Correlation-Context format: key1=value1,key2=value2)
+        // NOTE: initialize_opentelemetry() runs once per process and caches the result.
+        // Resource attributes are therefore determined by whichever VirtualHost handles
+        // the first request and apply globally for the lifetime of the process.
+        env_config[ix].name = OTEL_SDK_ENV_RESOURCE_ATTRIBUTES;
+        env_config[ix].value = our_config->getOtelResourceAttributes();
         ++ix;
 
         // !!!

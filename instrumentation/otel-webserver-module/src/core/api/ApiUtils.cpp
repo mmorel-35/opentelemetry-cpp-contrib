@@ -263,6 +263,10 @@ OTEL_SDK_STATUS_CODE ApiUtils::ReadSettingsFromReader(
     reader.ReadOptional(
             std::string(OTEL_SDK_ENV_OTEL_EXPORTER_OTLPHEADERS), otelExporterOtlpHeaders);
 
+    std::string resourceAttributes;
+    reader.ReadOptional(
+            std::string(OTEL_SDK_ENV_RESOURCE_ATTRIBUTES), resourceAttributes);
+
 
     tenantConfig.setServiceNamespace(serviceNamespace);
     tenantConfig.setServiceName(serviceName);
@@ -280,6 +284,7 @@ OTEL_SDK_STATUS_CODE ApiUtils::ReadSettingsFromReader(
     //tenantConfig.setOtelMaxExportBatchSize(setOtelExportTimeoutMillis);
     tenantConfig.setOtelSslEnabled(otelSslEnabled);
     tenantConfig.setOtelSslCertPath(otelSslCertPath);
+    tenantConfig.setOtelResourceAttributes(resourceAttributes);
 
     spanNamer.setSegmentRules(segmentType, segmentParameter);
 
