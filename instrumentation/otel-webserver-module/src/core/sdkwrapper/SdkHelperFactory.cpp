@@ -81,7 +81,7 @@ SdkHelperFactory::SdkHelperFactory(
     //attributes[kOtelWebEngineDescription] = config->getOtelLibraryName() + " Instrumentation";
 
     // Add custom resource attributes from configuration
-    const std::string& resourceAttributesStr = config->getResourceAttributes();
+    const std::string& resourceAttributesStr = config->getOtelResourceAttributes();
     if (!resourceAttributesStr.empty()) {
         opentelemetry::common::KeyValueStringTokenizer tokenizer{resourceAttributesStr};
         opentelemetry::nostd::string_view attr_key;
@@ -89,10 +89,10 @@ SdkHelperFactory::SdkHelperFactory(
         bool attr_valid = true;
         while (tokenizer.next(attr_valid, attr_key, attr_value)) {
             if (attr_valid) {
-                attributes[std::string(attr_key)] = std::string(attr_value);
+                attributes[static_cast<std::string>(attr_key)] = static_cast<std::string>(attr_value);
             } else {
                 LOG4CXX_WARN(mLogger, "Skipping invalid resource attribute: key='"
-                    << std::string(attr_key) << "' value='" << std::string(attr_value) << "'");
+                    << static_cast<std::string>(attr_key) << "' value='" << static_cast<std::string>(attr_value) << "'");
             }
         }
     }

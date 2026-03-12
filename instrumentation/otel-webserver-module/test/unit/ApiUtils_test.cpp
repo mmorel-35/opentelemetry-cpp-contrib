@@ -504,7 +504,7 @@ TEST(ApiUtils, ReadFromPassedSettings_ResourceAttributes_Populated)
 
 	auto status = apiUtils.ReadFromPassedSettings(env_config, 17, tenantConfig, spanNamer);
 	EXPECT_EQ(status, OTEL_SUCCESS);
-	EXPECT_EQ(tenantConfig.getResourceAttributes(), "deployment.environment=production,k8s.namespace=my-ns");
+	EXPECT_EQ(tenantConfig.getOtelResourceAttributes(), "deployment.environment=production,k8s.namespace=my-ns");
 	delete[] env_config;
 }
 
@@ -588,6 +588,6 @@ TEST(ApiUtils, ReadFromPassedSettings_ResourceAttributes_Empty)
 
 	auto status = apiUtils.ReadFromPassedSettings(env_config, 17, tenantConfig, spanNamer);
 	EXPECT_EQ(status, OTEL_SUCCESS);
-	EXPECT_EQ(tenantConfig.getResourceAttributes(), "");
+	EXPECT_EQ(tenantConfig.getOtelResourceAttributes(), "");
 	delete[] env_config;
 }

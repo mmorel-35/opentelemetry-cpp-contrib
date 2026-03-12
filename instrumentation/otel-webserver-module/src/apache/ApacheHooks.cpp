@@ -426,7 +426,7 @@ bool ApacheHooks::initialize_opentelemetry(const request_rec *r)
         env_config[ix].value = our_config->getSegmentParameter();
         ++ix;
 
-        // Segment Parameter
+        // OTLP Headers
         env_config[ix].name = OTEL_SDK_ENV_OTEL_EXPORTER_OTLPHEADERS;
         env_config[ix].value = our_config->getOtelExporterOtlpHeaders();
         ++ix;

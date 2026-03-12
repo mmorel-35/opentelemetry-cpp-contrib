@@ -284,7 +284,7 @@ OTEL_SDK_STATUS_CODE ApiUtils::ReadSettingsFromReader(
     //tenantConfig.setOtelMaxExportBatchSize(setOtelExportTimeoutMillis);
     tenantConfig.setOtelSslEnabled(otelSslEnabled);
     tenantConfig.setOtelSslCertPath(otelSslCertPath);
-    tenantConfig.setResourceAttributes(resourceAttributes);
+    tenantConfig.setOtelResourceAttributes(resourceAttributes);
 
     spanNamer.setSegmentRules(segmentType, segmentParameter);
 
