@@ -413,9 +413,9 @@ const char* ApacheConfigHandlers::otel_add_resource_attribute(cmd_parms *cmd, vo
     {
         return "ApacheModuleOtelResourceAttributes: attribute value must not be null";
     }
-    if (strchr(value, ','))
+    if (strchr(value, '=') || strchr(value, ','))
     {
-        return "ApacheModuleOtelResourceAttributes: attribute value must not contain ','";
+        return "ApacheModuleOtelResourceAttributes: attribute value must not contain '=' or ','";
     }
 
     otel_cfg* cfg = (otel_cfg*) conf;
@@ -785,11 +785,15 @@ void* ApacheConfigHandlers::otel_merge_dir_config(apr_pool_t* p, void* parent_co
     merged_config->segmentParameter_initialized = 1;
 
     // otelResourceAttributes  OPTIONAL: Custom resource attributes
-    // Child VirtualHost configuration completely overrides parent (consistent with all other directives).
-    // To include global attributes in a VirtualHost, repeat them explicitly.
-    merged_config->otelResourceAttributes = nconf->otelResourceAttributes_initialized ?
-            apr_pstrdup(p, nconf->otelResourceAttributes) : apr_pstrdup(p, pconf->otelResourceAttributes);
-    merged_config->otelResourceAttributes_initialized = 1;
+    // VirtualHost is independent — no inheritance from parent when not explicitly set.
+    if (nconf->otelResourceAttributes_initialized) {
+        merged_config->otelResourceAttributes =
+                apr_pstrdup(p, nconf->otelResourceAttributes);
+        merged_config->otelResourceAttributes_initialized = 1;
+    } else {
+        merged_config->otelResourceAttributes = apr_pstrdup(p, "");
+        merged_config->otelResourceAttributes_initialized = 0;
+    }
 
 
     ApacheTracing::writeTrace(NULL, __func__,
