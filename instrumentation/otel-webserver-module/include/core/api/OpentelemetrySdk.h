@@ -55,6 +55,9 @@
 #define OTEL_SDK_ENV_SEGMENT_TYPE "OTEL_SDK_ENV_SEGMENT_TYPE"
 #define OTEL_SDK_ENV_SEGMENT_PARAMETER "OTEL_SDK_ENV_SEGMENT_PARAMETER"
 
+// RESOURCE ATTRIBUTES ENV VARIABLE (W3C Correlation-Context format: key1=value1,key2=value2)
+#define OTEL_SDK_ENV_RESOURCE_ATTRIBUTES "OTEL_SDK_ENV_RESOURCE_ATTRIBUTES"
+
 
 /* {{{ For API user: API User logger */
 #define OTEL_LOG_API_USER_LOGGER  "api_user"    /*logging at the level of sdk function call*/

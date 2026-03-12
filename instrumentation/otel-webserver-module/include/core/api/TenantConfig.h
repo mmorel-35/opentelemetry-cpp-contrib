@@ -55,6 +55,7 @@ public:
     const std::string& getOtelSamplerType() const {return otelSamplerType;}
     const bool getOtelSslEnabled() const { return otelSslEnabled; }
     const std::string& getOtelSslCertPath() const { return otelSslCertPath; }
+    const std::string& getResourceAttributes() const { return resourceAttributes; }
 
     void setOtelLibraryName(const std::string& name) { this->otelLibraryName = name; }
     void setOtelLibraryVersion(const std::string& version) { this->otelLibraryVersion = version; }
@@ -73,6 +74,7 @@ public:
     void setOtelSamplerType(const std::string& otelSamplerType) { this->otelSamplerType = otelSamplerType; }
     void setOtelSslEnabled(const bool& otelSslEnabled) { this->otelSslEnabled = otelSslEnabled; }
     void setOtelSslCertPath(const std::string& otelSslCertPath) { this->otelSslCertPath = otelSslCertPath; }
+    void setResourceAttributes(const std::string& resourceAttributes) { this->resourceAttributes = resourceAttributes; }
 
 private:
     std::string serviceNamespace;
@@ -96,6 +98,9 @@ private:
     unsigned otelScheduledDelayMillis;
     unsigned otelExportTimeoutMillis;
     unsigned otelMaxExportBatchSize;
+
+    // Custom resource attributes in W3C Correlation-Context format: key1=value1,key2=value2
+    std::string resourceAttributes;
 
     //Span Limits(AttributeCountLimit, EventCountLimit, LinkCountLimit, AttributePerEventCountLimit, AttributePerLinkCountLimit
     //: configuration options have not been added for these; as of now they will have their default vaules

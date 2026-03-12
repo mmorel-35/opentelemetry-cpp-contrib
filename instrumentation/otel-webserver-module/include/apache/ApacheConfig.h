@@ -113,6 +113,9 @@ public:
     const char* getSegmentParameter() { return segmentParameter; }
     int getSegmentParameterInitialized() { return segmentParameter_initialized; }
 
+    const char* getOtelResourceAttributes() { return otelResourceAttributes; }
+    int getOtelResourceAttributesInitialized() { return otelResourceAttributes_initialized; }
+
     friend class ApacheConfigHandlers;
 
 private:
@@ -205,6 +208,10 @@ private:
     int segmentParameter_initialized;   // if FIRST/LAST is choosen above, segment count should be provided.
                                         // if CUSTOM is choosen, segment numbers should be provided such as 2,3
 
+    // Custom resource attributes in W3C Correlation-Context format: key1=value1,key2=value2
+    const char *otelResourceAttributes; // OPTIONAL: Custom OpenTelemetry resource attributes
+    int otelResourceAttributes_initialized;
+
 };
 
 class WebserverContext
@@ -254,6 +261,7 @@ public:
     static const char* otel_set_matchPattern(cmd_parms *cmd, void *conf, const char *arg);
     static const char* otel_set_segmentType(cmd_parms *cmd, void *conf, const char *arg);
     static const char* otel_set_segmentParameter(cmd_parms *cmd, void *conf, const char *arg);
+    static const char* otel_add_resource_attribute(cmd_parms *cmd, void *conf, const char *key, const char *value);
     static const char* otel_add_webserver_context(
             cmd_parms* cmd,
             void* conf,

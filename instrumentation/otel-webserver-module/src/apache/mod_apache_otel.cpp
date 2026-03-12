@@ -214,6 +214,12 @@ static const command_rec otel_cmds[] =
             NULL,
             OR_ALL,
             "Specify the segment count or segment numbers that you want to display for Span Creation"),
+    AP_INIT_TAKE2(
+            "apacheModuleOtelResourceAttributes",
+            (CMD_HAND_TYPE)ApacheConfigHandlers::otel_add_resource_attribute,
+            NULL,
+            OR_ALL,
+            "Add a custom OpenTelemetry resource attribute as a key-value pair (e.g. deployment.environment production)"),
     {NULL}
 };
 
